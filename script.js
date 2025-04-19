@@ -1,5 +1,5 @@
 // Initialize Supabase
-const supabase = Supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+const supabase = Supabase.createClient('https://fiynqzojbuptnszykrke.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpeW5xem9qYnVwdG5zenlrcmtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwOTMxODksImV4cCI6MjA2MDY2OTE4OX0.wJf9fVDAWhDk5EJnBsJ5ydZ0a0K6902zv4lfxmXSc0g');
 
 // Check if user is logged in on page load
 window.onload = async () => {
