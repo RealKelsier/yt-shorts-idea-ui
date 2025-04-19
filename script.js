@@ -12,7 +12,7 @@ async function generateIdeas() {
   ideaList.innerHTML = '<li>Loading...</li>';
 
   try {
-    const response = await fetch('https://your-render-api-url.com/api/ideas', {
+    const response = await fetch('https://shortsgenix.onrender.com/api/ideas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: channelUrl }),
