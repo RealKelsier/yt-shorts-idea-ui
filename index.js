@@ -3,8 +3,8 @@ const { createRoot } = ReactDOM;
 const { motion } = window.framerMotion;
 
 // Initialize Supabase client
-const supabaseUrl = 'https://fiynqzojbuptnszykrke.supabase.co'; // Replace with your Supabase URL
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpeW5xem9qYnVwdG5zenlrcmtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwOTMxODksImV4cCI6MjA2MDY2OTE4OX0.wJf9fVDAWhDk5EJnBsJ5ydZ0a0K6902zv4lfxmXSc0g'; // Replace with your Supabase anon key
+const supabaseUrl = 'https://your-supabase-url.supabase.co'; // Replace with your Supabase URL
+const supabaseAnonKey = 'your-supabase-anon-key'; // Replace with your Supabase anon key
 
 // Validate Supabase configuration
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -16,6 +16,27 @@ const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supa
 // Sound effects
 const clickSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_5e7e0a6d70.mp3'); // Click sound
 const successSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_1b6f3e3f1a.mp3'); // Success sound
+
+// Initialize Particles.js
+React.useEffect(() => {
+  particlesJS('particles-js', {
+    particles: {
+      number: { value: 80, density: { enable: true, value_area: 800 } },
+      color: { value: '#ffffff' },
+      shape: { type: 'circle' },
+      opacity: { value: 0.3, random: true },
+      size: { value: 3, random: true },
+      line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.2, width: 1 },
+      move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+    },
+    interactivity: {
+      detect_on: 'canvas',
+      events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
+      modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 4 } }
+    },
+    retina_detect: true
+  });
+}, []);
 
 // Main App Component
 const App = () => {
@@ -165,8 +186,8 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 flex items-center justify-center p-6">
-      <div className="relative w-full max-w-lg bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-gray-700">
+    <div className="min-h-screen flex items-center justify-center p-6 font-poppins">
+      <div className="relative w-full max-w-lg bg-gray-800 bg-opacity-90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-700">
         {/* SHORT GENIX Branding with Glow Effect */}
         <div className="absolute top-4 left-4">
           <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse shadow-lg">
@@ -183,13 +204,18 @@ const App = () => {
         {!user ? (
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-200 mb-4">Log In / Sign Up</h3>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600"
-            />
+            <div className="group relative">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
+              />
+              <span className="absolute hidden group-hover:block -top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-1 px-2">
+                Enter your email to receive a magic link
+              </span>
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -216,13 +242,18 @@ const App = () => {
         {/* Generate Ideas Section */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-200 mb-4">YouTube Channel Link:</h3>
-          <input
-            type="text"
-            value={channelUrl}
-            onChange={(e) => setChannelUrl(e.target.value)}
-            placeholder="Enter YouTube channel URL"
-            className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600"
-          />
+          <div className="group relative">
+            <input
+              type="text"
+              value={channelUrl}
+              onChange={(e) => setChannelUrl(e.target.value)}
+              placeholder="Enter YouTube channel URL"
+              className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
+            />
+            <span className="absolute hidden group-hover:block -top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-1 px-2">
+              E.g., https://www.youtube.com/@channel
+            </span>
+          </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -256,7 +287,7 @@ const App = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-4 bg-gray-700 bg-opacity-50 rounded-lg flex justify-between items-center hover:bg-opacity-70 transition-all duration-300 border border-gray-600"
+                  className="p-4 bg-gray-700 bg-opacity-50 rounded-lg flex justify-between items-center hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
                 >
                   <span className="text-white">
                     {idea.title} (Virality Score: <span className="font-semibold">{idea.score}/10</span>)
@@ -291,7 +322,7 @@ const App = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-4 bg-gray-700 bg-opacity-50 rounded-lg text-white hover:bg-opacity-70 transition-all duration-300 border border-gray-600"
+                    className="p-4 bg-gray-700 bg-opacity-50 rounded-lg text-white hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
                   >
                     {idea.title} (Virality Score: <span className="font-semibold">{idea.score}/10</span>)
                   </motion.li>
