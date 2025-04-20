@@ -3,8 +3,8 @@ const { createRoot } = ReactDOM;
 const { motion } = window.framerMotion;
 
 // Initialize Supabase client
-const supabaseUrl = 'https://your-supabase-url.supabase.co'; // Replace with your Supabase URL
-const supabaseAnonKey = 'your-supabase-anon-key'; // Replace with your Supabase anon key
+const supabaseUrl = 'https://fiynqzojbuptnszykrke.supabase.co'; // Replace with your Supabase URL
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpeW5xem9qYnVwdG5zenlrcmtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwOTMxODksImV4cCI6MjA2MDY2OTE4OX0.wJf9fVDAWhDk5EJnBsJ5ydZ0a0K6902zv4lfxmXSc0g'; // Replace with your Supabase anon key
 
 // Validate Supabase configuration
 if (!supabaseUrl || !supabaseAnonKey) {
