@@ -1,6 +1,12 @@
-const { createClient } = Supabase;
-const { createRoot } = ReactDOM;
-const { motion } = window.framerMotion;
+const { createClient } = window.Supabase || {};
+const { createRoot } = window.ReactDOM || {};
+const { motion } = window.framerMotion || {};
+
+// Dependency check
+if (!window.React || !window.ReactDOM || !window.framerMotion || !window.Supabase || !window.particlesJS) {
+  console.error('One or more dependencies failed to load. Ensure all CDN scripts are loaded correctly.');
+  document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error: Failed to load dependencies. Please check your internet connection or refresh the page.</div>';
+}
 
 // Initialize Supabase client
 const supabaseUrl = 'https://your-supabase-url.supabase.co'; // Replace with your Supabase URL
@@ -11,14 +17,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase configuration missing. Ensure supabaseUrl and supabaseAnonKey are set.');
 }
 
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
+const supabase = supabaseUrl && supabaseAnonKey && createClient ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 // Sound effects
 const clickSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_5e7e0a6d70.mp3'); // Click sound
 const successSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_1b6f3e3f1a.mp3'); // Success sound
 
 // Initialize Particles.js
-React.useEffect(() => {
+if (window.particlesJS) {
   particlesJS('particles-js', {
     particles: {
       number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -36,7 +42,33 @@ React.useEffect(() => {
     },
     retina_detect: true
   });
-}, []);
+}
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Rendering error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="text-red-400 text-center p-6">
+          <h2>Something went wrong while rendering the app.</h2>
+          <p>{this.state.error?.message || 'Unknown error'}</p>
+          <p>Please refresh the page or check the console for more details.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Main App Component
 const App = () => {
@@ -338,6 +370,15 @@ const App = () => {
   );
 };
 
-// Render the app
-const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+// Render the app with error boundary
+if (createRoot && document.getElementById('root')) {
+  const root = createRoot(document.getElementById('root'));
+  root.render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
+} else {
+  console.error('Failed to initialize app: createRoot or root element not found.');
+  document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error: Failed to initialize app. Please check the console for details.</div>';
+}
