@@ -1,42 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YT Shorts Idea Generator</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortsGenix</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React and ReactDOM -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <!-- Framer Motion for animations -->
+  <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.18.0/dist/framer-motion.js"></script>
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
-  <div class="w-full max-w-lg p-8 bg-gray-800 rounded-2xl shadow-xl">
-    <h1 class="text-3xl font-bold mb-6 text-center">YT Shorts Idea Generator</h1>
-
-    <!-- Login Section -->
-    <div id="authSection" class="mb-6">
-      <h2 class="text-lg font-semibold mb-2">Log In / Sign Up</h2>
-      <input type="email" id="email" placeholder="Enter your email" class="w-full px-4 py-2 mb-4 bg-gray-700 rounded-xl text-white" />
-      <button onclick="signIn()" class="w-full bg-green-600 text-white py-2 rounded-xl hover:bg-green-700">Log In / Sign Up</button>
-      <button onclick="signOut()" id="signOutBtn" class="w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 mt-2 hidden">Sign Out</button>
-    </div>
-
-    <!-- Input -->
-    <label for="channelUrl" class="block font-semibold mb-2">YouTube Channel Link:</label>
-    <input type="text" id="channelUrl" placeholder="e.g., https://youtube.com/@MrBeast" class="w-full px-4 py-2 mb-4 bg-gray-700 rounded-xl text-white" />
-    
-    <button onclick="generateIdeas()" class="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700">Generate Ideas</button>
-    
-    <!-- Results -->
-    <div id="results" class="mt-6 hidden">
-      <h2 class="text-lg font-semibold mb-2">Suggested Shorts Ideas:</h2>
-      <ul id="ideaList" class="space-y-4"></ul>
-    </div>
-
-    <!-- Saved Ideas -->
-    <div id="savedIdeasSection" class="mt-6 hidden">
-      <h2 class="text-lg font-semibold mb-2">Saved Ideas:</h2>
-      <ul id="savedIdeasList" class="space-y-4"></ul>
-    </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="script.js"></script>
+<body>
+  <div id="root"></div>
+  <script src="index.js"></script>
 </body>
 </html>
