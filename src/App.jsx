@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { motion } from 'framer-motion';
-import Particles from 'react-particles';
-import { loadFull } from 'tsparticles';
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validate Supabase configuration
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase configuration missing. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
 }
 
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
-
-// Sound effects
-const clickSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_5e7e0a6d70.mp3'); // Click sound
-const successSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_1b6f3e3f1a.mp3'); // Success sound
 
 // Main App Component
 const App = () => {
@@ -26,12 +18,8 @@ const App = () => {
   const [ideas, setIdeas] = useState([]);
   const [savedIdeas, setSavedIdeas] = useState([]);
   const [channelUrl, setChannelUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Initialize Particles
-  const particlesInit = async (main) => {
-    await loadFull(main);
-  };
 
   // Check for user session on mount
   useEffect(() => {
@@ -73,7 +61,6 @@ const App = () => {
   // Handle login/signup with magic link
   const handleLogin = async (e) => {
     e.preventDefault();
-    clickSound.play();
     if (!supabase) {
       alert('Supabase client not initialized. Check configuration.');
       return;
@@ -83,7 +70,6 @@ const App = () => {
       return;
     }
     try {
-      console.log('Attempting to send magic link to:', email);
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -91,7 +77,6 @@ const App = () => {
         },
       });
       if (error) {
-        console.error('Login error:', error.message);
         throw error;
       }
       alert('Check your email for the magic link!');
@@ -121,9 +106,26 @@ const App = () => {
     }
   };
 
-  // Handle generating ideas
+  // Validate YouTube URL
+  const validateYouTubeUrl = (url) => {
+    const youtubeRegex = /^https:\/\/(www\.)?youtube\.com\/@[\w-]+$/;
+    if (!url) {
+      return 'Please enter a YouTube channel URL.';
+    }
+    if (!youtubeRegex.test(url)) {
+      return 'Invalid YouTube channel URL. It should look like https://www.youtube.com/@channel';
+    }
+    return '';
+  };
+
+  // Handle generating ideas with validation
   const generateIdeas = async () => {
-    clickSound.play();
+    const validationError = validateYouTubeUrl(channelUrl);
+    if (validationError) {
+      setUrlError(validationError);
+      return;
+    }
+    setUrlError('');
     setIsLoading(true);
     try {
       const response = await fetch('https://shortsgenix.onrender.com/api/ideas', {
@@ -135,8 +137,7 @@ const App = () => {
       if (data.error) {
         throw new Error(data.error);
       }
-      setIdeas(data.ideas);
-      successSound.play();
+      setIdeas(data.ideas || []);
     } catch (error) {
       setIdeas([]);
       alert('Error generating ideas: ' + error.message);
@@ -147,7 +148,6 @@ const App = () => {
 
   // Handle saving an idea
   const saveIdea = async (idea) => {
-    clickSound.play();
     if (!user) {
       alert('Please log in to save ideas!');
       return;
@@ -169,7 +169,6 @@ const App = () => {
 
   // Handle logout
   const handleLogout = async () => {
-    clickSound.play();
     if (!supabase) {
       alert('Supabase client not initialized. Check configuration.');
       return;
@@ -180,143 +179,90 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-black font-poppins">
-      <Particles
-        id="particles-js"
-        className="absolute inset-0 z-0"
-        init={particlesInit}
-        options={{
-          particles: {
-            number: { value: 50, density: { enable: true, value_area: 800 } },
-            color: { value: '#8b5cf6' }, // Neon purple particles
-            shape: { type: 'circle' },
-            opacity: { value: 0.5, random: true },
-            size: { value: 3, random: true },
-            line_linked: { enable: true, distance: 150, color: '#8b5cf6', opacity: 0.3, width: 1 },
-            move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
-          },
-          interactivity: {
-            detect_on: 'canvas',
-            events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
-            modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 4 } }
-          },
-          retina_detect: true
-        }}
-      />
-      <div className="relative w-full max-w-md bg-gray-900 bg-opacity-80 backdrop-blur-lg rounded-xl shadow-2xl p-8 border border-gray-700">
-        {/* SHORT GENIX Branding with Glow Effect */}
-        <div className="absolute top-4 left-4">
-          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse shadow-lg">
-            SHORT GENIX
-          </h1>
-        </div>
-
-        {/* Main Title with Gradient Text */}
-        <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 mb-8">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#1a2a44] font-sans">
+      <div className="w-full max-w-md bg-[#2d3b55] rounded-lg p-8">
+        {/* Main Title */}
+        <h1 className="text-2xl font-bold text-white mb-6">
           YT Shorts Idea Generator
         </h1>
 
         {/* Log In / Sign Up Section */}
         {!user ? (
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">Log In / Sign Up</h3>
-            <div className="group relative">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
-              />
-              <span className="absolute hidden group-hover:block -top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-1 px-2">
-                Enter your email to receive a magic link
-              </span>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-white mb-2">Log In / Sign Up</h3>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full p-3 bg-[#3e4b66] text-white rounded-lg focus:outline-none border border-[#4a5872] mb-3"
+            />
+            <button
               onClick={handleLogin}
-              className="w-full mt-4 p-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg shadow-lg hover:shadow-glow transition-all duration-300"
+              className="w-full p-3 bg-[#28a745] text-white rounded-lg"
             >
               Log In / Sign Up
-            </motion.button>
+            </button>
           </div>
         ) : (
-          <div className="mb-8">
-            <p className="text-gray-200">Logged in as: <span className="font-semibold">{user.email}</span></p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <div className="mb-6">
+            <p className="text-white">Logged in as: <span className="font-semibold">{user.email}</span></p>
+            <button
               onClick={handleLogout}
-              className="mt-2 p-2 bg-red-600 text-white rounded-lg shadow-lg hover:shadow-glow transition-all duration-300"
+              className="mt-2 p-2 bg-red-600 text-white rounded-lg"
             >
               Sign Out
-            </motion.button>
+            </button>
           </div>
         )}
 
         {/* Generate Ideas Section */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-200 mb-4">YouTube Channel Link:</h3>
-          <div className="group relative">
-            <input
-              type="text"
-              value={channelUrl}
-              onChange={(e) => setChannelUrl(e.target.value)}
-              placeholder="Enter YouTube channel URL"
-              className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
-            />
-            <span className="absolute hidden group-hover:block -top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-1 px-2">
-              E.g., https://www.youtube.com/@channel
-            </span>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-white mb-2">YouTube Channel Link:</h3>
+          <input
+            type="text"
+            value={channelUrl}
+            onChange={(e) => {
+              setChannelUrl(e.target.value);
+              setUrlError('');
+            }}
+            placeholder="e.g., https://youtube.com/@channel"
+            className="w-full p-3 bg-[#3e4b66] text-white rounded-lg focus:outline-none border border-[#4a5872] mb-3"
+          />
+          {urlError && (
+            <p className="text-red-400 text-sm mb-2">{urlError}</p>
+          )}
+          <button
             onClick={generateIdeas}
             disabled={isLoading}
-            className={`w-full mt-4 p-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg shadow-lg hover:shadow-glow transition-all duration-300 ${
+            className={`w-full p-3 bg-[#007bff] text-white rounded-lg ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isLoading ? 'Generating...' : 'Generate Ideas'}
-          </motion.button>
-          {isLoading && (
-            <div className="flex justify-center mt-4">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                className="w-8 h-8 border-4 border-t-4 border-purple-500 border-solid rounded-full"
-              />
-            </div>
-          )}
+          </button>
         </div>
 
         {/* Display Generated Ideas */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-200 mb-4">Suggested Shorts Ideas:</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">Suggested Shorts Ideas:</h3>
           {ideas.length > 0 ? (
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               {ideas.map((idea, index) => (
-                <motion.li
+                <li
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-4 bg-gray-800 bg-opacity-50 rounded-lg flex justify-between items-center hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
+                  className="p-3 bg-[#3e4b66] rounded-lg flex justify-between items-center border border-[#4a5872]"
                 >
                   <span className="text-white">
-                    {idea.title} (Virality Score: <span className="font-semibold text-purple-400">{idea.score}/10</span>)
+                    {idea.title} (Virality Score: <span className="font-semibold">{idea.score}/10</span>)
                   </span>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => saveIdea(idea)}
-                    className="p-2 bg-teal-500 text-white rounded-lg shadow-md hover:shadow-glow transition-all duration-300"
+                    className="p-2 bg-[#28a745] text-white rounded-lg"
                   >
                     Save Idea
-                  </motion.button>
-                </motion.li>
+                  </button>
+                </li>
               ))}
             </ul>
           ) : (
@@ -328,20 +274,17 @@ const App = () => {
 
         {/* Display Saved Ideas */}
         {user && (
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">Saved Ideas:</h3>
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-white mb-2">Saved Ideas:</h3>
             {savedIdeas.length > 0 ? (
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {savedIdeas.map((idea, index) => (
-                  <motion.li
+                  <li
                     key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="p-4 bg-gray-800 bg-opacity-50 rounded-lg text-white hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
+                    className="p-3 bg-[#3e4b66] rounded-lg text-white border border-[#4a5872]"
                   >
-                    {idea.title} (Virality Score: <span className="font-semibold text-purple-400">{idea.score}/10</span>)
-                  </motion.li>
+                    {idea.title} (Virality Score: <span className="font-semibold">{idea.score}/10</span>)
+                  </li>
                 ))}
               </ul>
             ) : (
