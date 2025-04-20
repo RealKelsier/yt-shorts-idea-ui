@@ -12,7 +12,8 @@
     "react-dom": "18.2.0",
     "@supabase/supabase-js": "2.45.4",
     "framer-motion": "10.18.0",
-    "particles.js": "2.0.0"
+    "react-particles": "^2.12.2",
+    "tsparticles": "^3.5.0"
   },
   "devDependencies": {
     "vite": "5.4.8",
