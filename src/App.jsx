@@ -19,32 +19,6 @@ const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supa
 const clickSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_5e7e0a6d70.mp3'); // Click sound
 const successSound = new Audio('https://cdn.pixabay.com/audio/2022/03/09/audio_1b6f3e3f1a.mp3'); // Success sound
 
-// Error Boundary Component
-class ErrorBoundary extends React.Component {
-  state = { hasError: false, error: null };
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('Rendering error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="text-red-400 text-center p-6">
-          <h2>Something went wrong while rendering the app.</h2>
-          <p>{this.state.error?.message || 'Unknown error'}</p>
-          <p>Please refresh the page or check the console for more details.</p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
 // Main App Component
 const App = () => {
   const [email, setEmail] = useState('');
@@ -62,18 +36,22 @@ const App = () => {
   // Check for user session on mount
   useEffect(() => {
     const getUser = async () => {
-      if (!supabase) {
-        console.error('Supabase client not initialized');
-        return;
-      }
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error('Error fetching user:', error.message);
-        return;
-      }
-      setUser(user);
-      if (user) {
-        fetchSavedIdeas(user.id);
+      try {
+        if (!supabase) {
+          console.error('Supabase client not initialized');
+          return;
+        }
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error('Error fetching user:', error.message);
+          return;
+        }
+        setUser(user);
+        if (user) {
+          fetchSavedIdeas(user.id);
+        }
+      } catch (error) {
+        console.error('Unexpected error in getUser:', error.message);
       }
     };
     getUser();
@@ -92,7 +70,7 @@ const App = () => {
     }
   }, []);
 
-  // handling login/signup with magic link
+  // Handle login/signup with magic link
   const handleLogin = async (e) => {
     e.preventDefault();
     clickSound.play();
@@ -124,18 +102,22 @@ const App = () => {
 
   // Fetch saved ideas from Supabase
   const fetchSavedIdeas = async (userId) => {
-    if (!supabase) {
-      console.error('Supabase client not initialized');
-      return;
-    }
-    const { data, error } = await supabase
-      .from('ideas')
-      .select('*')
-      .eq('user_id', userId);
-    if (error) {
-      console.error('Error fetching saved ideas:', error.message);
-    } else {
-      setSavedIdeas(data || []);
+    try {
+      if (!supabase) {
+        console.error('Supabase client not initialized');
+        return;
+      }
+      const { data, error } = await supabase
+        .from('ideas')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching saved ideas:', error.message);
+      } else {
+        setSavedIdeas(data || []);
+      }
+    } catch (error) {
+      console.error('Unexpected error in fetchSavedIdeas:', error.message);
     }
   };
 
@@ -198,19 +180,19 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 font-poppins">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-black font-poppins">
       <Particles
         id="particles-js"
         className="absolute inset-0 z-0"
         init={particlesInit}
-        params={{
+        options={{
           particles: {
-            number: { value: 80, density: { enable: true, value_area: 800 } },
-            color: { value: '#ffffff' },
+            number: { value: 50, density: { enable: true, value_area: 800 } },
+            color: { value: '#8b5cf6' }, // Neon purple particles
             shape: { type: 'circle' },
-            opacity: { value: 0.3, random: true },
+            opacity: { value: 0.5, random: true },
             size: { value: 3, random: true },
-            line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.2, width: 1 },
+            line_linked: { enable: true, distance: 150, color: '#8b5cf6', opacity: 0.3, width: 1 },
             move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
           },
           interactivity: {
@@ -221,10 +203,10 @@ const App = () => {
           retina_detect: true
         }}
       />
-      <div className="relative w-full max-w-lg bg-gray-800 bg-opacity-90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-700">
+      <div className="relative w-full max-w-md bg-gray-900 bg-opacity-80 backdrop-blur-lg rounded-xl shadow-2xl p-8 border border-gray-700">
         {/* SHORT GENIX Branding with Glow Effect */}
         <div className="absolute top-4 left-4">
-          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse shadow-lg">
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse shadow-lg">
             SHORT GENIX
           </h1>
         </div>
@@ -244,7 +226,7 @@ const App = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
+                className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
               />
               <span className="absolute hidden group-hover:block -top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-1 px-2">
                 Enter your email to receive a magic link
@@ -254,7 +236,7 @@ const App = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleLogin}
-              className="w-full mt-4 p-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-full mt-4 p-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg shadow-lg hover:shadow-glow transition-all duration-300"
             >
               Log In / Sign Up
             </motion.button>
@@ -266,7 +248,7 @@ const App = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleLogout}
-              className="mt-2 p-2 bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              className="mt-2 p-2 bg-red-600 text-white rounded-lg shadow-lg hover:shadow-glow transition-all duration-300"
             >
               Sign Out
             </motion.button>
@@ -280,9 +262,9 @@ const App = () => {
             <input
               type="text"
               value={channelUrl}
-              onChange={(e) => setChannelUrl(e.target.value)} // Fixed: use setChannelUrl
+              onChange={(e) => setChannelUrl(e.target.value)}
               placeholder="Enter YouTube channel URL"
-              className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
+              className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
             />
             <span className="absolute hidden group-hover:block -top-10 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-1 px-2">
               E.g., https://www.youtube.com/@channel
@@ -293,7 +275,7 @@ const App = () => {
             whileTap={{ scale: 0.95 }}
             onClick={generateIdeas}
             disabled={isLoading}
-            className={`w-full mt-4 p-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ${
+            className={`w-full mt-4 p-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg shadow-lg hover:shadow-glow transition-all duration-300 ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -321,16 +303,16 @@ const App = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-4 bg-gray-700 bg-opacity-50 rounded-lg flex justify-between items-center hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
+                  className="p-4 bg-gray-800 bg-opacity-50 rounded-lg flex justify-between items-center hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
                 >
                   <span className="text-white">
-                    {idea.title} (Virality Score: <span className="font-semibold">{idea.score}/10</span>)
+                    {idea.title} (Virality Score: <span className="font-semibold text-purple-400">{idea.score}/10</span>)
                   </span>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => saveIdea(idea)}
-                    className="p-2 bg-teal-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                    className="p-2 bg-teal-500 text-white rounded-lg shadow-md hover:shadow-glow transition-all duration-300"
                   >
                     Save Idea
                   </motion.button>
@@ -356,9 +338,9 @@ const App = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-4 bg-gray-700 bg-opacity-50 rounded-lg text-white hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
+                    className="p-4 bg-gray-800 bg-opacity-50 rounded-lg text-white hover:bg-opacity-70 transition-all duration-300 border border-gray-600 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.1)]"
                   >
-                    {idea.title} (Virality Score: <span className="font-semibold">{idea.score}/10</span>)
+                    {idea.title} (Virality Score: <span className="font-semibold text-purple-400">{idea.score}/10</span>)
                   </motion.li>
                 ))}
               </ul>
