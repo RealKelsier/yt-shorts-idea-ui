@@ -280,7 +280,7 @@ const App = () => {
             <input
               type="text"
               value={channelUrl}
-              onChange={(e) => setChannelUrl(e.target.value)}
+              onChange={(e) => setChannelUrl(e.target.value)} // Fixed: use setChannelUrl
               placeholder="Enter YouTube channel URL"
               className="w-full p-3 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 border border-gray-600 shadow-inner"
             />
